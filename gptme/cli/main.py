@@ -1443,6 +1443,11 @@ def main(
     if prompt_system == "full-noexamples":
         os.environ["GPTME_NO_EXAMPLES"] = "1"
 
+    # Messages to (re-)apply *after* an existing conversation is loaded. These
+    # cannot ride on ``initial_msgs``: ``LogManager.load`` keeps the persisted
+    # history and discards ``initial_msgs`` when the log is non-empty.
+    resume_msgs: list[Message] | None = None
+
     if is_existing_conversation:
         logger.debug("Existing conversation found, skipping initial prompt generation")
         if prompt_system == "full-noexamples":
@@ -1462,7 +1467,7 @@ def main(
             if selected_profile:
                 logger.info(f"Using persisted agent profile: {selected_profile.name}")
         if selected_profile and selected_profile.system_prompt:
-            initial_msgs = [
+            resume_msgs = [
                 Message(
                     "system",
                     f"# Agent Profile: {selected_profile.name}\n\n{selected_profile.system_prompt}",
@@ -1530,6 +1535,7 @@ def main(
             config.chat.tool_format,
             output_schema_type,
             output_format,
+            resume_msgs=resume_msgs,
         )
         show_resume_hint_on_exit = True
     except click.ClickException:
