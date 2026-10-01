@@ -212,6 +212,10 @@ class MessageMetadata(TypedDict, total=False):
     # supersedes older ones in provider context while all remain on disk.
     prompt_generation: str
     skill_invocation_id: str  # Explicit skill invocation that queued this prompt
+    # Stable key for resume-only prompt messages (e.g. a re-applied agent
+    # profile) so repeated resumes replace the same message instead of
+    # stacking duplicates or matching by content substring.
+    resume_key: str
 
 
 _TOKEN_KEYS = (
